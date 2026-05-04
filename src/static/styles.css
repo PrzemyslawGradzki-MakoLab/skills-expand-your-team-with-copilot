@@ -468,6 +468,100 @@ button {
   font-size: 0.85rem;
 }
 
+/* Social sharing */
+.card-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card-title-row h4 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+  color: var(--primary);
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  flex: 1;
+}
+
+.share-button {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
+}
+
+.share-button:hover {
+  background-color: var(--border-light);
+  color: var(--primary);
+}
+
+.share-popup {
+  position: absolute;
+  top: 36px;
+  right: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  z-index: 100;
+  min-width: 170px;
+}
+
+.share-popup-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.share-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.share-option {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+}
+
+.share-option:hover {
+  background-color: var(--background);
+  border-color: var(--primary-light);
+  color: var(--primary);
+}
+
+/* Highlight animation for shared activity */
+@keyframes highlight-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(26, 35, 126, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(26, 35, 126, 0.25); }
+}
+
+.activity-highlighted {
+  animation: highlight-pulse 1s ease 3;
+  border-color: var(--primary-light) !important;
+}
+
 footer {
   text-align: center;
   margin-top: 20px;
