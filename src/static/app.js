@@ -519,9 +519,24 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    activityCard.id = `activity-${CSS.escape(name)}`;
+    activityCard.dataset.activityName = name;
+
     activityCard.innerHTML = `
       ${tagHtml}
-      <h4>${name}</h4>
+      <div class="card-title-row">
+        <h4>${name}</h4>
+        <button class="share-button" aria-label="Share ${name}" title="Share this activity">📤</button>
+      </div>
+      <div class="share-popup hidden">
+        <div class="share-popup-title">Share this activity</div>
+        <div class="share-options">
+          <button class="share-option" data-share="copy">🔗 Copy Link</button>
+          <button class="share-option" data-share="email">✉️ Email</button>
+          <button class="share-option" data-share="whatsapp">💬 WhatsApp</button>
+          <button class="share-option" data-share="twitter">🐦 Twitter / X</button>
+        </div>
+      </div>
       <p>${details.description}</p>
       <p class="tooltip">
         <strong>Schedule:</strong> ${formattedSchedule}
@@ -587,7 +602,59 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Share button toggle
+    const shareButton = activityCard.querySelector(".share-button");
+    const sharePopup = activityCard.querySelector(".share-popup");
+    shareButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      // Close any other open popups
+      document.querySelectorAll(".share-popup:not(.hidden)").forEach((popup) => {
+        if (popup !== sharePopup) popup.classList.add("hidden");
+      });
+      sharePopup.classList.toggle("hidden");
+    });
+
+    // Share option buttons
+    const shareOptions = activityCard.querySelectorAll(".share-option");
+    shareOptions.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        shareActivity(name, btn.dataset.share);
+        sharePopup.classList.add("hidden");
+      });
+    });
+
     activitiesList.appendChild(activityCard);
+  }
+
+  // Build a shareable URL for an activity
+  function getShareUrl(activityName) {
+    const url = new URL(window.location.origin + window.location.pathname);
+    url.searchParams.set("activity", activityName);
+    return url.toString();
+  }
+
+  // Share an activity using the chosen method
+  function shareActivity(activityName, method) {
+    const shareUrl = getShareUrl(activityName);
+    const shareText = `Check out "${activityName}" at Mergington High School!`;
+
+    if (method === "copy") {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showMessage("Link copied to clipboard!", "success");
+      }).catch(() => {
+        showMessage(`Copy this link: ${shareUrl}`, "error");
+      });
+    } else if (method === "email") {
+      const subject = encodeURIComponent(`Join me: ${activityName}`);
+      const body = encodeURIComponent(`${shareText}\n\n${shareUrl}`);
+      window.open(`mailto:?subject=${subject}&body=${body}`);
+    } else if (method === "whatsapp") {
+      const msg = encodeURIComponent(`${shareText} ${shareUrl}`);
+      window.open(`https://wa.me/?text=${msg}`, "_blank");
+    } else if (method === "twitter") {
+      const tweet = encodeURIComponent(`${shareText} ${shareUrl}`);
+      window.open(`https://twitter.com/intent/tweet?text=${tweet}`, "_blank");
+    }
   }
 
   // Event listeners for search and filter
@@ -855,6 +922,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Close share popups when clicking outside
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".share-popup:not(.hidden)").forEach((popup) => {
+      popup.classList.add("hidden");
+    });
+  });
+
+  // Scroll to and highlight a shared activity from URL param
+  function handleSharedActivityUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const activityName = params.get("activity");
+    if (!activityName) return;
+
+    const card = document.querySelector(
+      `[data-activity-name="${CSS.escape(activityName)}"]`
+    );
+    if (card) {
+      card.classList.add("activity-highlighted");
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => card.classList.remove("activity-highlighted"), 3000);
+    }
+  }
+
   // Expose filter functions to window for future UI control
   window.activityFilters = {
     setDayFilter,
@@ -864,7 +954,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   checkAuthentication();
   initializeFilters();
-  fetchActivities();
+  fetchActivities().then(() => handleSharedActivityUrl());
 
   // Dark mode toggle
   const darkModeToggle = document.getElementById("dark-mode-toggle");
