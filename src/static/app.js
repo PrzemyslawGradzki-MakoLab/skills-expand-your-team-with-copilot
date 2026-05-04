@@ -440,8 +440,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Apply difficulty filter
-      // Empty string means "All Levels" - show only activities with no difficulty set
-      // A specific difficulty means show only activities with that difficulty
+      // "All Levels" (empty string) shows only activities with no difficulty set,
+      // because those activities are suitable for everyone (no specific level required).
+      // Per requirements: the "All Levels" option shows only activities with no
+      // specified difficulty information.
+      // A specific difficulty (Beginner/Intermediate/Advanced) shows only
+      // activities tagged with that exact difficulty level.
       if (currentDifficulty === "") {
         if (details.difficulty) {
           return;
